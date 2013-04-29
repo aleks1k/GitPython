@@ -5,6 +5,7 @@
 # the BSD License: http://www.opensource.org/licenses/bsd-license.php
 
 import os, sys
+import tempfile
 from util import (
 					LazyMixin, 
 					stream_copy
@@ -328,19 +329,30 @@ class Git(LazyMixin):
 		  cwd = os.getcwd()
 		else:
 		  cwd=self._working_dir
-		  
+
+		if as_process:
+			temp_file_err = tempfile.TemporaryFile()
+			temp_file_out = tempfile.TemporaryFile()
+			stderr_pipe=temp_file_err.fileno()
+			stdout_pipe=temp_file_out.fileno()
+		else:
+			stderr_pipe=PIPE
+			stdout_pipe=PIPE
+
 		# Start the process
 		proc = Popen(command,
-						cwd=cwd,
-						stdin=istream,
-						stderr=PIPE,
-						stdout=PIPE,
-						close_fds=(os.name=='posix'),# unsupported on linux
-						**subprocess_kwargs
-						)
+					 cwd=cwd,
+					 stdin=istream,
+					 stderr=stderr_pipe,
+					 stdout=stdout_pipe,
+					 close_fds=(os.name=='posix'),# unsupported on linux
+					 **subprocess_kwargs
+		)
 		if as_process:
+			proc.stderr = temp_file_err
+			proc.stdout = temp_file_out
 			return self.AutoInterrupt(proc, command)
-		
+
 		# Wait for the process to return
 		status = 0
 		stdout_value = ''
