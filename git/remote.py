@@ -515,8 +515,8 @@ class Remote(LazyMixin, Iterable):
 		output = IterableList('name')
 
 		finalize_process(proc)
-		proc.strerr.seek(0)
-		proc.strout.seek(0)
+		proc.stderr.seek(0)
+		proc.stdout.seek(0)
 
 		# lines which are no progress are fetch info lines
 		# this also waits for the command to finish
