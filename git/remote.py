@@ -513,8 +513,11 @@ class Remote(LazyMixin, Iterable):
 	def _get_fetch_info_from_stderr(self, proc, progress):
 		# skip first line as it is some remote info we are not interested in
 		output = IterableList('name')
-		
-		
+
+		finalize_process(proc)
+		proc.strerr.seek(0)
+		proc.strout.seek(0)
+
 		# lines which are no progress are fetch info lines
 		# this also waits for the command to finish
 		# Skip some progress lines that don't provide relevant information
